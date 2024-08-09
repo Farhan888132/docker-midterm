@@ -1,0 +1,42 @@
+services:
+
+  nginx:
+    build:
+      context: ./docker/nginx
+      dockerfile: Dockerfile
+    container_name: challenge3-nginx
+    ports:
+      - "8080:8080"
+
+  node-service:
+    build: ./docker/api
+    container_name: challenge3-node-service
+    environment:
+      DB_ROOT_PASSWORD: super_password
+      DB_DATABASE: mydatabase
+      DB_USERNAME: user
+      DB_PASSWORD: password
+      DB_HOST: db
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./docker/api:/usr/src/app
+    command: sh -c "cd /usr/src/app && npm install && npm start"
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
+    container_name: challenge3-database
+    environment:
+      MYSQL_ROOT_PASSWORD: super_password
+      MYSQL_DATABASE: mydatabase
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    ports:
+      - "5555:5555"
+    volumes:
+      - data:/var/lib/mysql
+
+volumes:
+  data:
